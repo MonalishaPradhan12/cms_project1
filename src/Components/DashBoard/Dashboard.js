@@ -50,6 +50,7 @@ const Navbar = () => {
       salary: '$100,000 - $130,000',
       detailsLink: '/job-details/3',
     },
+    
     // Add more jobs as needed
   ];
 
