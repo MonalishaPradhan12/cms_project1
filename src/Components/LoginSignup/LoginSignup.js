@@ -1,140 +1,196 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import "./LoginSignup.css"; // Reuse or adjust your CSS here
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  InputAdornment,
+  Snackbar, // Import Snackbar
+} from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import EmailIcon from "@mui/icons-material/Email";
+import PhoneIcon from "@mui/icons-material/Phone";
+import LockIcon from "@mui/icons-material/Lock";
 import img_icon from "../Assets/loginIllustration.jpg";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import EmailIcon from '@mui/icons-material/Email';
-import PhoneIcon from '@mui/icons-material/Phone';
-import LockIcon from '@mui/icons-material/Lock';
+import apiService from "../services/apiService"; // Import the common apiService
+
 const LoginSignup = () => {
-  // State to hold form inputs
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    phone_number:"",
-    password: "",
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  const [message, setMessage] = useState("");
+  const navigate = useNavigate(); // Initialize useNavigate
+  const [openSnackbar, setOpenSnackbar] = useState(false); // State for Snackbar
 
- 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const onSubmit = async (data) => {
+    console.log(data);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(FormData);
-    
     try {
-      const response = await fetch("http://localhost:5000/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      // Use the common apiService post method for form submission
+      const result = await apiService.post("/register", data);
 
-      if (response.ok) {
-        const data = await response.json();
-        // setMessage(data.message);
-        setMessage(`Sign-up successful! Token: `);
-      } else {
-        const errorData = await response.json();
-        // setMessage(data.message);
-        setMessage(`Sign-up failed: ${errorData.error}`);
-      }
+      // Handle successful response
+      setOpenSnackbar(true); // Show Snackbar
+
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+        navigate("/login"); // Redirect to /login after sign-up
+      }, 2000); // 2 seconds delay
     } catch (error) {
-      // setMessage(data.message);
-      setMessage("An error occurred during submission.");
+      // Handle error response
+      alert(`Sign-up failed: ${error.message}`);
     }
   };
 
+  // Close Snackbar
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   return (
-    <div className="signup">
-      <div className="card main-card">
-        <div className="row">
-          <div className="col-md-6">
+    <Box
+      className="signup"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+    >
+      <Box
+        className="card main-card"
+        sx={{ maxWidth: 600, boxShadow: 3, p: 2, borderRadius: 2 }}
+      >
+        <Box display="flex">
+          <Box flex={1} p={2}>
             <img
               src={img_icon}
               alt="Signup Illustration"
-              style={{ width: "320px", height: "100%" }}
+              style={{ width: "100%", height: "auto",marginTop:45 }}
             />
-          </div>
+          </Box>
+          <Box flex={1} p={2}>
+            <Typography
+              variant="h5"
+              component="div"
+              gutterBottom
+              textAlign="center"
+            >
+              Sign Up
+            </Typography>
 
-          <div className="col-md-6 form-section ps-2 pe-5 mt-2">
-            <div className="header"></div>
-            <div className="text text-center">Sign Up</div>
-            <div className="underline"></div>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* Username Field */}
+              <TextField
+                fullWidth
+                label="Username"
+                {...register("username", { required: "Username is required" })}
+                error={!!errors.username}
+                helperText={errors.username ? errors.username.message : ""}
+                margin="normal"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AccountCircleIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-            <form onSubmit={handleSubmit}>
-              <div className="inputs">
-                <div className="input">
-                  <AccountCircleIcon />
-                  <input
-                    type="text"
-                    placeholder="Enter your username"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
+              {/* Email Field */}
+              <TextField
+                fullWidth
+                label="Email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
+                    message: "Enter a valid email",
+                  },
+                })}
+                error={!!errors.email}
+                helperText={errors.email ? errors.email.message : ""}
+                margin="normal"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-                <div className="input">
-                  <EmailIcon/>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="input">
-                  <PhoneIcon/>
-                  <input
-                    type="text"
-                    placeholder="Enter your Phone numeber"
-                    name="phone_number"
-                    value={formData.phone_number}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
+              {/* Phone Number Field */}
+              <TextField
+                fullWidth
+                label="Phone Number"
+                {...register("phone_number", {
+                  required: "Phone number is required",
+                  pattern: {
+                    value: /^[0-9]{10}$/,
+                    message: "Enter a valid phone number",
+                  },
+                })}
+                error={!!errors.phone_number}
+                helperText={
+                  errors.phone_number ? errors.phone_number.message : ""
+                }
+                margin="normal"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PhoneIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-                <div className="input">
-                  <LockIcon/>
-                  <input
-                    type="password"
-                    placeholder="Enter your password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
-
+              {/* Password Field */}
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                {...register("password", { required: "Password is required" })}
+                error={!!errors.password}
+                helperText={errors.password ? errors.password.message : ""}
+                margin="normal"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
               <div className="forgot-password">
                 Already have an account? <Link to="/login">Login here</Link>
               </div>
-
-              <div className="submit-container">
-                <button className="btn btn-primary submit w-100" type="submit">
+              <Box mt={2}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                >
                   Sign Up
-                </button>
-              </div>
+                </Button>
+              </Box>
             </form>
-            {message && <div className="message">{message}</div>}
-          </div>
-        </div>
-      </div>
-    </div>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Snackbar for success message */}
+      <Snackbar
+        open={openSnackbar}
+        onClose={handleCloseSnackbar}
+        message="Sign-up successful!"
+        autoHideDuration={2000} // Auto-hide after 2 seconds
+        anchorOrigin={{ vertical: "top", horizontal: "right" }} // Positioning
+      />
+    </Box>
   );
 };
 

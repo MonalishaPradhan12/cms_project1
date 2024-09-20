@@ -1,115 +1,133 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./LoginSignup.css"; 
+import { useForm } from "react-hook-form";
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  InputAdornment,
+} from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LockIcon from "@mui/icons-material/Lock";
 import img_icon from "../Assets/loginIllustration.jpg";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LockIcon from '@mui/icons-material/Lock';
+import apiService from "../services/apiService"; // Import the common apiService
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
-
-  const [message, setMessage] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const navigate = useNavigate(); // To redirect after successful login
+  const [message, setMessage] = React.useState("");
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     try {
-      const response = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await apiService.post("/login", data);
 
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Assuming your backend returns a token or user data upon successful login
-        setMessage("Login successful!");
-        
-        // Store token if needed
-        localStorage.setItem("token", data.token);
+      setMessage(response.message);
 
-        // Redirect to dashboard or home page
-        navigate("/dashboard");  // Redirect to any page you like after login
-      } else {
-        const errorData = await response.json();
-        setMessage(`Login failed: ${errorData.message}`);
-      }
+      localStorage.setItem("token", response.accessToken);
+
+      navigate("/dashboard"); 
     } catch (error) {
-      setMessage("An error occurred during login.");
+      setMessage(`Login failed: ${error.message}`);
     }
   };
 
   return (
-    <div className="signup">
-      <div className="card">
-        <div className="row">
-          <div className="col-md-6">
-            <img src={img_icon} alt="image" style={{ width: "320px", height: "100%" }} />
-          </div>
-          <div className="col-md-6 form-section ps-4 pe-5">
-            <div className="header mb-5 mt-3">
-              <div className="text text-center">Login</div>
-              <div className="underline"></div>
-            </div>
-            <form onSubmit={handleSubmit}>
-              <div className="inputs">
-                <div className="input">
-                  <AccountCircleIcon />
-                  <input
-                    type="text"
-                    placeholder="Enter your username"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="input">
-                  <LockIcon />
-                  <input
-                    type="password"
-                    placeholder="Enter your password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
+    <Box
+      className="login"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+    >
+      <Box
+        className="card"
+        sx={{ maxWidth: 600, boxShadow: 3, p: 2, borderRadius: 2 }}
+      >
+        <Box display="flex">
+          <Box flex={1} p={2}>
+            <img
+              src={img_icon}
+              alt="Login Illustration"
+              style={{ width: "100%", height: "auto" }}
+            />
+          </Box>
+          <Box flex={1} p={2}>
+            <Typography
+              variant="h5"
+              component="div"
+              gutterBottom
+              textAlign="center"
+            >
+              Login
+            </Typography>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* Username Field */}
+              <TextField
+                fullWidth
+                label="Email"
+                {...register("email", { required: "Email is required" })} // Change username to email
+                error={!!errors.email} // Change username to email
+                helperText={errors.email ? errors.email.message : ""}
+                margin="normal"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AccountCircleIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              {/* Password Field */}
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                {...register("password", { required: "Password is required" })}
+                error={!!errors.password}
+                helperText={errors.password ? errors.password.message : ""}
+                margin="normal"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
               <div className="forgot-password">
                 Lost Password? <span>Click here</span>
               </div>
               <div className="forgot-password">
-                Don't have an account? <Link to='/signup'><span>Click here</span></Link>
+                Don't have an account?{" "}
+                <Link to="/signup">
+                  <span>Click here</span>
+                </Link>
               </div>
 
-              <div className="submit-container">
-                <button className="btn btn-primary submit w-100" type="submit">
+              <Box mt={2}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                >
                   Login
-                </button>
-              </div>
+                </Button>
+              </Box>
             </form>
-            
-            {message && <div className="message">{message}</div>}  {/* Display login message */}
-          </div>
-        </div>
-      </div>
-    </div>
+            {message && <div className="message">{message}</div>}{" "}
+            {/* Display login message */}
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
