@@ -1,7 +1,7 @@
 import React from 'react';
 import { AppBar, Toolbar, Button,Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
-
+import Logout from '../MyProfile/Logout'
 const DashBoardAppbar = () => {
   return (
     <AppBar position="static">
@@ -24,9 +24,9 @@ const DashBoardAppbar = () => {
         </Button>
 
         {/* Logout Link */}
-        <Button color="inherit" component={Link} to="/">
-          Logout
-        </Button>
+       
+         <Logout/>
+     
       </Toolbar>
     </AppBar>
   );

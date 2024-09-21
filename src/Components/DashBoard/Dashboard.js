@@ -1,9 +1,11 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Card, CardContent, CardActions, Icon } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Card, CardContent, CardActions, Icon,Grid } from '@mui/material';
 import { LocationOn, Work, AttachMoney } from '@mui/icons-material'; // Importing icons
 import { Link } from 'react-router-dom';
 import DashBoardAppbar from '../DashBoard/Appbar';
+import ApplyButton from './ApplyButton';
 import './Dashboard.css';
+
 
 const Navbar = () => {
   // Array of job details
@@ -14,6 +16,7 @@ const Navbar = () => {
       experience: '3+ years',
       salary: '$90,000 - $120,000',
       detailsLink: '/job-details/1',
+      applyLink:'/apply-link/1'
     },
     {
       title: 'Front-End Developer',
@@ -34,7 +37,7 @@ const Navbar = () => {
       location: 'New York, USA',
       experience: '3+ years',
       salary: '$90,000 - $120,000',
-      detailsLink: '/job-details/1',
+    
     },
     {
       title: 'Front-End Developer',
@@ -81,9 +84,16 @@ const Navbar = () => {
               </Typography>
             </CardContent>
             <CardActions>
-              <Button size="small" color="primary" component={Link} to={job.detailsLink}>
-                View Details
-              </Button>
+            <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Button size="small" color="secondary" component={Link} to={job.detailsLink} fullWidth>
+                    View Details
+                  </Button>
+                </Grid>
+                <Grid item xs={6}>
+                  <ApplyButton applyLink={job.applyLink}/>
+                </Grid>
+              </Grid>
             </CardActions>
           </Card>
         ))}

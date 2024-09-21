@@ -11,6 +11,7 @@ import Dashboard from "./Components/DashBoard/Dashboard";
 import Myprofile from "./Components/MyProfile/Myprofile";
 import Logout from "./Components/MyProfile/Logout";
 import { Settings } from "@mui/icons-material";
+import Form from "./Components/Form/Form";
 // import SignUp from './SignUp';
 function Title() {
   return <h1>Hello world</h1>;
@@ -25,6 +26,7 @@ function App() {
         <Route path="/profile" element={<Myprofile/>}/>
         <Route path="/settings" element={<Settings/>}/>
         <Route path="/logout" element={<Logout/>}/>
+        <Route path="/applyform" element={<Form/>}/>
         <Route path="/" element={<LoginSignup />} />
 
       </Routes>

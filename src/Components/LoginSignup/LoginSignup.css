@@ -1,5 +1,5 @@
 /* General Layout */
-.signup {
+/* .signup {
   font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #f0f2f5, #5078ab);
   margin: 0;
@@ -11,13 +11,13 @@
 }
 
 .container {
-  text-align: center;
+  text-align: center; */
   /* margin-bottom: 30px; */
   /* padding: 20px; */
-  padding: 0%;
-  background-color: #fff;
+  /* padding: 0%;
+  background-color: #fff; */
   /* border: 2px solid #007bff; */
-  border-radius: 10px; 
+  /* border-radius: 10px; 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
   height: 100%;
   min-height: 500px;
@@ -86,7 +86,7 @@
 
 .forgot-password span:hover {
   text-decoration: underline;
-}
+} */
 
 /* Buttons */
 /* .submit-container {

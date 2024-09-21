@@ -8,6 +8,7 @@ import {
   Typography,
   InputAdornment,
   Snackbar, // Import Snackbar
+  Alert, // Import Alert for better message presentation
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import EmailIcon from "@mui/icons-material/Email";
@@ -17,14 +18,12 @@ import img_icon from "../Assets/loginIllustration.jpg";
 import apiService from "../services/apiService"; // Import the common apiService
 
 const LoginSignup = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const {   register,handleSubmit, formState: { errors }, } = useForm();
 
   const navigate = useNavigate(); // Initialize useNavigate
   const [openSnackbar, setOpenSnackbar] = useState(false); // State for Snackbar
+  const [snackbarMessage, setSnackbarMessage] = useState(""); // Snackbar message
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Severity of Snackbar
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -32,9 +31,9 @@ const LoginSignup = () => {
     try {
       // Use the common apiService post method for form submission
       const result = await apiService.post("/register", data);
-
-      // Handle successful response
-      setOpenSnackbar(true); // Show Snackbar
+      setSnackbarMessage(result.message);
+      setSnackbarSeverity("success"); // Set severity to success
+      setOpenSnackbar(true);
 
       // Redirect to login page after a short delay
       setTimeout(() => {
@@ -42,7 +41,9 @@ const LoginSignup = () => {
       }, 2000); // 2 seconds delay
     } catch (error) {
       // Handle error response
-      alert(`Sign-up failed: ${error.message}`);
+      setSnackbarMessage(`Sign-up failed: ${error.message}`);
+      setSnackbarSeverity("error"); // Set severity to error
+      setOpenSnackbar(true);
     }
   };
 
@@ -68,9 +69,10 @@ const LoginSignup = () => {
             <img
               src={img_icon}
               alt="Signup Illustration"
-              style={{ width: "100%", height: "auto",marginTop:45 }}
+              style={{ width: "100%", height: "auto", marginTop: 45 }}
             />
           </Box>
+          
           <Box flex={1} p={2}>
             <Typography
               variant="h5"
@@ -182,14 +184,21 @@ const LoginSignup = () => {
         </Box>
       </Box>
 
-      {/* Snackbar for success message */}
+      {/* Snackbar for success or error message */}
       <Snackbar
         open={openSnackbar}
         onClose={handleCloseSnackbar}
-        message="Sign-up successful!"
         autoHideDuration={2000} // Auto-hide after 2 seconds
         anchorOrigin={{ vertical: "top", horizontal: "right" }} // Positioning
-      />
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity} // Use the severity state
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -7,6 +7,8 @@ import {
   Box,
   Typography,
   InputAdornment,
+  Snackbar,
+  Alert, // Import Alert for better message presentation
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LockIcon from "@mui/icons-material/Lock";
@@ -21,19 +23,34 @@ const Login = () => {
   } = useForm();
   const navigate = useNavigate(); // To redirect after successful login
   const [message, setMessage] = React.useState("");
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false); // Snackbar state
 
   const onSubmit = async (data) => {
     try {
       const response = await apiService.post("/login", data);
-
       setMessage(response.message);
+      localStorage.setItem("accesstoken", response.accessToken);
+      localStorage.setItem("refreshtoken", response.refreshToken);
+      // console.log(response.accessToken);
+      // console.log(response.refreshToken);
+      setSnackbarOpen(true); // Open the Snackbar when login is successful
 
-      localStorage.setItem("token", response.accessToken);
-
-      navigate("/dashboard"); 
+      // Redirect to the dashboard after a short delay
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500); // 1.5 seconds delay before redirecting
     } catch (error) {
       setMessage(`Login failed: ${error.message}`);
+      setSnackbarOpen(true); // Open the Snackbar on error too
     }
+  };
+
+  // Function to close Snackbar
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   return (
@@ -66,12 +83,12 @@ const Login = () => {
               Login
             </Typography>
             <form onSubmit={handleSubmit(onSubmit)}>
-              {/* Username Field */}
+              {/* Email Field */}
               <TextField
                 fullWidth
                 label="Email"
-                {...register("email", { required: "Email is required" })} // Change username to email
-                error={!!errors.email} // Change username to email
+                {...register("email", { required: "Email is required" })}
+                error={!!errors.email}
                 helperText={errors.email ? errors.email.message : ""}
                 margin="normal"
                 InputProps={{
@@ -122,10 +139,24 @@ const Login = () => {
                 </Button>
               </Box>
             </form>
-            {message && <div className="message">{message}</div>}{" "}
-            {/* Display login message */}
           </Box>
         </Box>
+
+        {/* Snackbar for success or error message */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={3000} // Automatically close after 3 seconds
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <Alert
+            onClose={handleSnackbarClose}
+            severity={message.startsWith("Login failed") ? "error" : "success"} // Show error or success based on message
+            sx={{ width: "100%" }}
+          >
+            {message}
+          </Alert>
+        </Snackbar>
       </Box>
     </Box>
   );
